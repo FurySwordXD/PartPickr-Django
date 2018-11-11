@@ -1,0 +1,128 @@
+{% extends 'Base.html' %}
+{% block title %}
+Build
+{% endblock %}
+{% block body %}
+
+    <br><br>
+    <table class="w3-table w3-content w3-padding w3-bordered w3-text-white">
+        <tr><th>Component</th><th>Selection</th></tr>
+        {% for k,v in parts.items %}
+            <tr>
+                <td>{{k}}</td>
+                <td style="width: 75%;">
+                {% if v is not None %}
+                    <div id="{{k}}">
+                        <table class="w3-table w3-card-4">
+                            <tr style="border-bottom: none;">
+                                <td><img class="w3-img" src="{{v.image}}"></td>
+                                <td>{{v.title}}<br><br>{{v.currency}} {{v.price}}<br><br><button class="w3-button w3-black w3-hover-red removePart" data-id="{{v.id}}" data-part="{{v.part_type}}">Remove</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <br><button class="w3-btn w3-teal getParts" data-part="{{k}}">Choose another {{k}}</button>
+                {% else %}
+                    <div id="{{k}}"></div><br><button class="w3-btn w3-teal getParts" data-part="{{k}}">Choose {{k}}</button>
+                {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <br>
+    {% for block in data %}
+    <div class="w3-modal partsModal" id="{{block.part_type}}-Modal">
+        <div class="w3-modal-content w3-animate-top w3-card-4 w3-padding" style="width: 75%;overflow-y: auto;" id="{{block.part_type}}-ModalContent">
+            <h3 class="w3-text-black w3-center">Pick your poison</h3>
+            <span class="w3-button w3-black w3-xlarge w3-hover-red w3-display-topright closeModal" data-part="{{block.part_type}}">&times;</span>
+            <table id="{{block.part_type}}-Table" class="w3-text-black w3-table-all">
+                <tr>
+                    <th>Image</th><th>Component</th><th style="width: 20%">Price</th>
+                </tr>
+                {% for part in block.parts %}
+                <tr>
+                    <td><img class="w3-img" src="{{part.image}}"></td>
+                    <td>{{part.title}}</td>
+                    <td>{{part.currency}} {{part.price}}<br><br><button class="w3-btn w3-black addPart" data-id="{{part.id}}" data-part="{{block.part_type}}">Select</button></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="w3-center">
+        <a class="w3-button w3-black w3-hover-green w3-ripple w3-center" id="checkoutBtn" href="/cart/">View Cart</a>
+    </div>
+    <br><br>
+    <script>
+        $("button.getParts").click(function () {
+            var btnValue = $(this).data('part');
+            console.log(btnValue.split(" ").length);
+            btnValue = btnValue.split(" ").join("\\ ");
+            console.log("#"+btnValue+"-Modal");
+            /*$("#"+btnValue+".partsTable").html("<div class=\"w3-container w3-center w3-text-black\">\n" +
+                "<h1>Fetching data...</h1>\n" +
+                "<p><i class=\"fa fa-spinner w3-spin\" style=\"font-size:64px\"></i></p>\n" +
+                "</div>");*/
+
+            $("#"+btnValue+"-Modal").fadeIn();
+            $("#"+btnValue+"-ModalContent").slideDown();
+        });
+        
+        $(".addPart").click(function() {
+            part_id = $(this).data('id');
+            part_type = $(this).data('part');
+            $.ajax({
+                type: 'GET',
+                url: 'addpart/' + part_id + '/',
+                success: function(response) {
+                    console.log(response);
+                    if(response['flag'])
+                    {
+                        console.log(response['html']);
+                        console.log("#"+part_type);
+                        display_snackbar(response['message']);   
+                        $("#"+part_type).html(response['html']);
+                        $('.getParts[data-part="'+part_type+'"]').text("Choose another"+part_type);
+                        $(".partsModal").fadeOut();
+                    }
+                    else
+                        display_snackbar(response['message']);
+                }
+            });
+        });
+
+        $(".removePart").click(function() {
+            part_id = $(this).data('id');
+            part_type = $(this).data('part');
+            console.log(part_type, part_id);
+            $.ajax({
+                type: "GET",
+                url: "removepart/" + part_id + "/",
+                success: function(response)
+                {
+                    if (response['flag'])
+                    {
+                        display_snackbar(response['message']);
+                        $("#"+part_type).html("");
+                        $('.getParts[data-part="'+part_type+'"]').text("Choose "+part_type);
+                    }
+                    else
+                        display_snackbar(response['message']);
+                }
+            });
+        });
+
+        $(".closeModal").click(function () {
+            $(".partsModal").fadeOut();
+        });
+
+        $(".partsModal").click(function (event) {
+            if (event.target !== this)
+                return;
+            $(".partsModal").fadeOut();
+        });
+    </script>
+
+
+{% endblock %}

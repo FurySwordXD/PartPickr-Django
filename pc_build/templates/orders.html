@@ -1,0 +1,31 @@
+{% extends 'Base.html' %}
+
+{% block title %}
+Orders
+{% endblock %}
+
+{% block body %}
+<br>
+<div class="w3-container w3-padding-64 w3-content w3-text-white">
+    <h3 class="w3-center">Order History</h3>
+    {% for order in orders %}
+        <div class="w3-padding-large">
+            <div class="w3-card-4 w3-hover-opacity w3-padding-large">
+            <a href="{{order.order_id}}" style="text-decoration:none;">
+                <h4>Order ID: {{ order.order_id }}</h4>
+                <table class="w3-table">
+                {% for part in order.parts %}
+                    <tr>
+                        <td style="width: 30%"><img class='w3-image' src='{{part.image}}' style="width:100%"></td>
+                        <td>{{part.title}}</td>
+                        <td style="width: 20%">{{part.currency}} {{part.price}}</td>
+                    </tr>
+                {% endfor %}
+                </table>
+            </a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<br><br>
+{% endblock %}

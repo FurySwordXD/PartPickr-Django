@@ -1,0 +1,74 @@
+{% extends 'Base.html' %}
+
+{% block title %}
+Order Info
+{% endblock %}
+
+{% block body %}
+<br><br>
+<div class="w3-container w3-text-white">
+    <div class="w3-content w3-center">
+        <input id="searchbar" type="text" class="w3-input w3-text-white w3-padding w3-margin" style="background-color: rgb(40,40,40);display:inline-flex;width:60%;" placeholder="Enter any component to filter..." onkeyup="filter()">
+        <a class="w3-button w3-black w3-hover-green w3-ripple w3-center" style="display:inline-flex;" href="/cart/">View Cart</a>
+    </div>
+    <br>
+    <div class="w3-content" style="max-width:90%;">
+    {% for part in parts %}
+    <div class="w3-padding col">
+    <table class="w3-table w3-card-4" style="border-bottom: 1px solid grey; min-height: 350px;">
+        <tr data-part="{{part.part_type}}">
+            <td style="width:50%"><img class="w3-image" src="{{part.image}}"></td>
+            <td>{{part.title}}<br><br>{{part.currency}} {{part.price}}<br><br><button class="w3-button w3-black w3-hover-green addPart" data-id='{{part.id}}' data-part='{{part.part_type}}'>Add to Cart</button></td>
+        </tr>
+    </table>
+    </div>
+    {% endfor %}
+    </div>
+</div>
+<style>
+
+ .col {
+    display: inline-flex;
+    width: 33%;
+    vertical-align: top;
+}
+     
+</style>
+<br><br>
+<script>
+
+$(".addPart").click(function() {
+    part_id = $(this).data('id');
+    part_type = $(this).data('part');
+    $.ajax({
+        type: 'GET',
+        url: 'addpart/' + part_id + '/',
+        success: function(response) {
+            console.log(response);
+            if (response['flag'])
+            {
+                display_snackbar(response['message']);
+            }
+        }
+    });
+});
+
+function filter() {
+    var input, filter, table, tr, td, i;
+    input = document.getElementById("searchbar");
+    filter = input.value.toUpperCase();
+    tr = document.getElementsByTagName("tr");
+    for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[1];
+    if (td) {
+        if (td.innerHTML.toUpperCase().indexOf(filter) > -1 || $(tr[i]).data('part').toUpperCase().indexOf(filter) > -1) {
+            $(tr[i]).show();
+        }
+        else {
+            $(tr[i]).hide();
+        }
+    }
+    }
+}
+</script>
+{% endblock %}

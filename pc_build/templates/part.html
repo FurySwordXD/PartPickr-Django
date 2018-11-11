@@ -1,0 +1,32 @@
+<table class="w3-table w3-card-4">
+    <tr style="border-bottom: none;">
+        <td><img class="w3-img" src="{{part.image}}"></td>
+        <td>{{part.title}}<br><br>
+            {{part.currency}} {{part.price}}<br><br>
+            <button class="w3-button w3-black w3-hover-red removePart" data-id="{{part.id}}" data-part="{{part.part_type}}">Remove</button>
+        </td>
+    </tr>
+</table>
+
+<script>
+$(".removePart").click(function() {
+    part_id = $(this).data('id');
+    part_type = $(this).data('part');
+    console.log(part_type, part_id);
+    $.ajax({
+        type: "GET",
+        url: "removepart/" + part_id + "/",
+        success: function(response)
+        {
+            if (response['flag'])
+            {
+                display_snackbar(response['message']);
+                $("#"+part_type).html("");
+                $('.getParts[data-part="'+part_type+'"]').text("Choose "+part_type);
+            }
+            else
+                display_snackbar(response['message']);
+        }
+    });
+});
+</script>
