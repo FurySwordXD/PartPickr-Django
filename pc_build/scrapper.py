@@ -6,8 +6,10 @@ import json
 def scrape(product, n):
     scrape_url = "https://www.newegg.com/global/in-en/Product/ProductList.aspx?Submit=ENE&IsNodeId=1&Description="
     l = []
+    product = "+".join(product.split())
+    print(product)
     for i in range(int(n)):
-
+        
         webpage = urlopen(scrape_url + str(product) + "&Page=" + str(i+1))
         html_data = BeautifulSoup(webpage.read(), "html.parser")
         webpage.close()
